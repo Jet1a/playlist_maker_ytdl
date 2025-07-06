@@ -1,41 +1,67 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# ========================
+# 📦 Shared Ignore Rules
+# ========================
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
-
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
+# OS & IDE junk
 .DS_Store
-*.pem
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# debug
+# Logs
+*.log
+*.log.*
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# Temporary & backup files
+*.tmp
+*.temp
+*.bak
+*.orig
+*.rej
+*.patch
 
-# vercel
-.vercel
-
-# typescript
+# TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# Env files (client & server)
+.env
+.env.*
+.env.local
+.env.*.local
+
+# ========================
+# 🚀 Client Ignore Rules
+# ========================
+client/node_modules/
+client/.pnp
+client/.pnp.*
+client/.next/
+client/out/
+client/build/
+client/.vercel
+client/.yarn/*
+!client/.yarn/patches
+!client/.yarn/plugins
+!client/.yarn/releases
+!client/.yarn/versions
+client/coverage
+client/*.pem
+
+# ========================
+# 🛠 Server Ignore Rules
+# ========================
+server/node_modules/
+server/logs/
+server/dist/
+server/build/
+server/out/
