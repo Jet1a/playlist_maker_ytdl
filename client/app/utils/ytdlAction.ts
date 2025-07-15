@@ -14,3 +14,18 @@ export const downloadVideo = async (url: string) => {
   link.click();
   document.body.removeChild(link);
 };
+
+export const getVideoInfo = async (url: string) => {
+  if (!url) return;
+
+  const response = await fetch(
+    `${SERVER_URL}/api/ytdl/info?url=${encodeURIComponent(url)}`
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch video info");
+  }
+
+  const data = await response.json();
+  return data;
+};

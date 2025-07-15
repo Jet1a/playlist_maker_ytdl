@@ -1,12 +1,31 @@
 "use client";
 
-import React, { useState } from "react";
-import { downloadVideo } from "../utils/ytdlAction";
+import React, { useEffect, useState } from "react";
+import { downloadVideo, getVideoInfo } from "../utils/ytdlAction";
+import PreviewVideo from "./PreviewVideo";
+import { VideoDetail } from "../types/type";
+import Spinner from "./Spinner";
 
 const DownloadInput = () => {
   const [videoUrl, setVideoUrl] = useState("");
   const [disabled, setDisabled] = useState(true);
   const [isInputError, setIsInputError] = useState(false);
+  const [videoDetail, setVideoDetail] = useState<VideoDetail | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchVideoInfo = async () => {
+      if (!isInputError && videoUrl) {
+        setLoading(true);
+        const videoInfo = await getVideoInfo(videoUrl);
+        setVideoDetail(videoInfo);
+        setLoading(false);
+      } else {
+        setVideoDetail(null);
+      }
+    };
+    fetchVideoInfo();
+  }, [isInputError, videoUrl]);
 
   const isUrlValid = (url: string) => {
     try {
@@ -69,6 +88,9 @@ const DownloadInput = () => {
           Download
         </button>
       </div>
+
+      {loading && <Spinner />}
+      {!loading && videoDetail && <PreviewVideo videoDetail={videoDetail} />}
     </>
   );
 };
