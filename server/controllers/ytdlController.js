@@ -8,7 +8,7 @@ export const downloadVideo = async (req, res) => {
 
    const info = await ytdl.getInfo(videoUrl)
 
-   const title = info.videoDetails.title.replace(/[^a-z0-9ก-๏]+/gi, '_').toLowerCase()
+   const title = await info.videoDetails.title.replace(/[^a-z0-9ก-๏]+/gi, '_').toLowerCase()
 
    const safeTitle = encodeURIComponent(title)
 
@@ -35,5 +35,4 @@ export const getVideoInfo = async (req, res) => {
          name: info.videoDetails.author.name
       }
    })
-
 }

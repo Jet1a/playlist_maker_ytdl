@@ -10,7 +10,7 @@ interface PreviewVideoProps {
 
 const PreviewVideo = ({ videoDetail }: PreviewVideoProps) => {
   return (
-    <div className="flex flex-col space-y-2">
+    <div className="flex flex-col space-y-2 pb-6">
       <h1 className="text-2xl font-bold">{videoDetail.title}</h1>
       <Image
         src={videoDetail.thumbnails.url}

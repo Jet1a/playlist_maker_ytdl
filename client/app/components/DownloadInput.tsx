@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { downloadVideo, getVideoInfo } from "../utils/ytdlAction";
 import PreviewVideo from "./PreviewVideo";
 import { VideoDetail } from "../types/type";
 import Spinner from "./Spinner";
+import toast from "react-hot-toast";
 
 const DownloadInput = () => {
   const [videoUrl, setVideoUrl] = useState("");
+  const [urls, setUrls] = useState<string[]>([]);
   const [disabled, setDisabled] = useState(true);
   const [isInputError, setIsInputError] = useState(false);
   const [videoDetail, setVideoDetail] = useState<VideoDetail | null>(null);
@@ -47,14 +49,21 @@ const DownloadInput = () => {
     setDisabled(!isUrlValid(e.target.value));
   };
 
-  const handleDownloadSubmit = () => {
+  const handleAddSubmit = (url: string) => {
+    setUrls((prev) => [...prev, url]);
+    setVideoUrl("");
+    toast.success(`Video Submitted`);
+  };
+
+  const handleDownloadSubmit = async () => {
     try {
       if (!videoUrl) {
         return null;
       }
-      downloadVideo(videoUrl);
+      await downloadVideo(videoUrl);
     } catch (error) {
       console.error("Failed to Download", error);
+      toast.error("Failed to Download")
     }
   };
 
@@ -74,10 +83,11 @@ const DownloadInput = () => {
           type="text"
           placeholder="Paste your youtube url"
           className="px-4 text-lg w-2xl focus:outline-none"
+          value={videoUrl}
           onChange={handleInputChange}
         />
         <button
-          onClick={handleDownloadSubmit}
+          onClick={() => handleAddSubmit(videoUrl)}
           disabled={disabled}
           className={`p-4 text-white text-lg font-semibold rounded-r-lg transition-all duration-200 ${
             disabled
@@ -85,9 +95,23 @@ const DownloadInput = () => {
               : "bg-red-400 hover:bg-red-500 cursor-pointer"
           }`}
         >
-          Download
+          Submit
         </button>
       </div>
+
+      <p>Total Video Submitted: {urls.length}</p>
+
+      <button
+        onClick={handleDownloadSubmit}
+        disabled={disabled}
+        className={`p-2 text-white text-lg w-xl rounded-xl font-semibold transition-all duration-200 ${
+          disabled
+            ? "bg-gray-300 cursor-not-allowed"
+            : "bg-green-400 hover:bg-green-500 cursor-pointer"
+        }`}
+      >
+        Download
+      </button>
 
       {loading && <Spinner />}
       {!loading && videoDetail && <PreviewVideo videoDetail={videoDetail} />}
