@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { downloadVideo, getVideoInfo } from "../utils/ytdlAction";
+import { downloadMultipleVideo, getVideoInfo } from "../utils/ytdlAction";
 import PreviewVideo from "./PreviewVideo";
 import { VideoDetail } from "../types/type";
 import Spinner from "./Spinner";
@@ -57,13 +57,13 @@ const DownloadInput = () => {
 
   const handleDownloadSubmit = async () => {
     try {
-      if (!videoUrl) {
+      if (!urls) {
         return null;
       }
-      await downloadVideo(videoUrl);
+      await downloadMultipleVideo(urls);
     } catch (error) {
       console.error("Failed to Download", error);
-      toast.error("Failed to Download")
+      toast.error("Failed to Download");
     }
   };
 

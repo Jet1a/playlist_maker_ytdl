@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL;
 
 export const downloadVideo = async (url: string) => {
@@ -28,4 +30,24 @@ export const getVideoInfo = async (url: string) => {
 
   const data = await response.json();
   return data;
+};
+
+export const downloadMultipleVideo = async (urls: string[]) => {
+  if (!urls) return;
+
+  await axios
+    .post(
+      `${SERVER_URL}/api/ytdl/download-multiple`,
+      { urls: urls },
+      { responseType: "blob" }
+    )
+    .then((res) => {
+      const blob = new Blob([res.data], { type: "application/zip" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "videos.zip";
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
 };

@@ -3,7 +3,8 @@ import fs from 'fs'
 import path from 'path'
 import archiver from 'archiver'
 
-const DOWNLOAD_DIR = path.resolve('./downloads')
+const DOWNLOAD_DIR = path.resolve('./temp_downloads')
+const ZIP_DIR = path.resolve('./temp_downloads_zip');
 
 export const downloadVideo = async (req, res) => {
    const videoUrl = req.query.url
@@ -43,6 +44,7 @@ export const getVideoInfo = async (req, res) => {
 }
 
 export const downloadMultipleVideos = async (req, res) => {
+
    const { urls } = req.body
 
    if (!Array.isArray(urls) || urls.length === 0) {
@@ -61,7 +63,7 @@ export const downloadMultipleVideos = async (req, res) => {
             return
          }
 
-         const info = await ytdl.getInfo(videoUrl)
+         const info = await ytdl.getInfo(url)
          const title = info.videoDetails.title.replace(/[^a-z0-9ก-๏]+/gi, '_').toLowerCase()
 
          const filename = `${index + 1}_${title}.mp4`
@@ -79,7 +81,12 @@ export const downloadMultipleVideos = async (req, res) => {
 
       // ZIP
       const zipName = 'videos.zip'
-      const zipPath = path.join(DOWNLOAD_DIR, zipName)
+      const zipPath = path.resolve('./temp_downloads_zip', zipName);
+
+      if (!fs.existsSync(ZIP_DIR)) {
+         fs.mkdirSync(ZIP_DIR, { recursive: true });
+      }
+
       const output = fs.createWriteStream(zipPath)
       const archive = archiver('zip', { zlib: { level: 9 } })
 
