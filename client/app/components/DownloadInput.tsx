@@ -6,16 +6,21 @@ import PreviewVideo from "./PreviewVideo";
 import { VideoDetail } from "../types/type";
 import Spinner from "./Spinner";
 import toast from "react-hot-toast";
+import PreviewSubmitList from "./PreviewSubmitList";
+import { SubmitUrlContext } from "../context/SubmitUrlContext";
 
 const DownloadInput = () => {
   const [videoUrl, setVideoUrl] = useState("");
   const [urls, setUrls] = useState<string[]>([]);
   const [disabled, setDisabled] = useState(true);
+  const [downloadDisabled, setDownloadDisabled] = useState(true);
   const [isInputError, setIsInputError] = useState(false);
   const [videoDetail, setVideoDetail] = useState<VideoDetail | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (urls.length !== 0) setDownloadDisabled(false);
+
     const fetchVideoInfo = async () => {
       if (!isInputError && videoUrl) {
         setLoading(true);
@@ -27,7 +32,7 @@ const DownloadInput = () => {
       }
     };
     fetchVideoInfo();
-  }, [isInputError, videoUrl]);
+  }, [isInputError, videoUrl, urls]);
 
   const isUrlValid = (url: string) => {
     try {
@@ -53,12 +58,13 @@ const DownloadInput = () => {
     setUrls((prev) => [...prev, url]);
     setVideoUrl("");
     toast.success(`Video Submitted`);
+    setDisabled(true);
   };
 
   const handleDownloadSubmit = async () => {
     try {
-      if (!urls) {
-        return null;
+      if (urls.length === 0) {
+        return;
       }
       await downloadMultipleVideo(urls);
     } catch (error) {
@@ -103,9 +109,9 @@ const DownloadInput = () => {
 
       <button
         onClick={handleDownloadSubmit}
-        disabled={disabled}
+        disabled={downloadDisabled}
         className={`p-2 text-white text-lg w-xl rounded-xl font-semibold transition-all duration-200 ${
-          disabled
+          downloadDisabled
             ? "bg-gray-300 cursor-not-allowed"
             : "bg-green-400 hover:bg-green-500 cursor-pointer"
         }`}
@@ -115,6 +121,10 @@ const DownloadInput = () => {
 
       {loading && <Spinner />}
       {!loading && videoDetail && <PreviewVideo videoDetail={videoDetail} />}
+
+      <SubmitUrlContext.Provider value={urls}>
+        <PreviewSubmitList />
+      </SubmitUrlContext.Provider>
     </>
   );
 };
