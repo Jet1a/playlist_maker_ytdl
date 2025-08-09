@@ -2,6 +2,9 @@ import ytdl from 'ytdl-core'
 import fs from 'fs'
 import path from 'path'
 import archiver from 'archiver'
+import ffmpeg from 'fluent-ffmpeg'
+import ffmpegPath from 'ffmpeg-static';
+
 
 const DOWNLOAD_DIR = path.resolve('./temp_downloads')
 const ZIP_DIR = path.resolve('./temp_downloads_zip');
@@ -18,10 +21,10 @@ export const downloadVideo = async (req, res) => {
 
    const safeTitle = encodeURIComponent(title)
 
-   res.header('Content-Disposition', `attachment; filename="${safeTitle}.mp4"`);
+   res.header('Content-Disposition', `attachment; filename="${safeTitle}.mp3"`);
 
    ytdl(videoUrl, {
-      format: "mp4",
+      format: "mp3",
    }).pipe(res)
 }
 
@@ -58,26 +61,26 @@ export const downloadMultipleVideos = async (req, res) => {
    fs.mkdirSync(DOWNLOAD_DIR)
 
    try {
-      const downloadPromise = urls.map(async (url, index) => {
-         if (!ytdl.validateURL(url)) {
-            return
-         }
+      await Promise.all(urls.map(async (url, index) => {
+         if (!ytdl.validateURL(url)) return;
 
-         const info = await ytdl.getInfo(url)
-         const title = info.videoDetails.title.replace(/[^a-z0-9ก-๏]+/gi, '_').toLowerCase()
-
-         const filename = `${index + 1}_${title}.mp4`
-         const filepath = path.join(DOWNLOAD_DIR, filename)
+         const info = await ytdl.getInfo(url);
+         const title = info.videoDetails.title.replace(/[^a-z0-9ก-๏]+/gi, '_').toLowerCase();
+         const filename = `${index + 1}_${title}.mp3`;
+         const filepath = path.join(DOWNLOAD_DIR, filename);
 
          return new Promise((resolve, reject) => {
-            ytdl(url, { quality: 'lowest' })
-               .pipe(fs.createWriteStream(filepath))
-               .on('finish', resolve)
-               .on('error', reject)
-         })
-      })
+            ffmpeg(ytdl(url, { quality: 'highestaudio' }))
+               .setFfmpegPath(ffmpegPath)
+               .audioBitrate(128)
+               .format('mp3')
+               .save(filepath)
+               .on('end', resolve)
+               .on('error', reject);
+         });
+      }));
 
-      await Promise.all(downloadPromise)
+      // await Promise.all(downloadPromise)
 
       // ZIP
       const zipName = 'videos.zip'
